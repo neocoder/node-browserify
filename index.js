@@ -95,7 +95,13 @@ Browserify.prototype.require = function (file, opts) {
                 self._expose[id] = filename;
             }
             if (!opts.entry && self._options.exports === undefined) {
+                // during the first bundle() call
+                // pipleline and thus _bpack is initiated before require call
+                // so this works...
                 self._bpack.hasExports = true;
+                // but on subsequent bundle() calls require() is not called anymore and we
+                // have to modify global options object to retain the hasExports flag.
+                self._options.hasExports = true;
             }
             var rec = {
                 source: buf.toString('utf8'),
@@ -131,6 +137,7 @@ Browserify.prototype.require = function (file, opts) {
     
     if (!row.entry && this._options.exports === undefined) {
         this._bpack.hasExports = true;
+        this._options.hasExports = true;
     }
     
     if (row.entry) row.order = self._entryOrder ++;
@@ -213,6 +220,7 @@ Browserify.prototype.plugin = function (p, opts) {
 Browserify.prototype._createPipeline = function (opts) {
     var self = this;
     if (!opts) opts = {};
+    delete opts.packageCache
     this._mdeps = this._createDeps(opts);
     this._mdeps.on('file', function (file, id) {
         pipeline.emit('file', file, id);
