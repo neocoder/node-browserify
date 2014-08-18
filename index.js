@@ -220,7 +220,7 @@ Browserify.prototype.plugin = function (p, opts) {
 Browserify.prototype._createPipeline = function (opts) {
     var self = this;
     if (!opts) opts = {};
-    delete opts.packageCache
+    delete opts.packageCache;
     this._mdeps = this._createDeps(opts);
     this._mdeps.on('file', function (file, id) {
         pipeline.emit('file', file, id);
